@@ -1,9 +1,15 @@
 package htl.m.templd_uebung;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -12,6 +18,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.TransferMode;
 
 public class PrimaryController implements Initializable{
 
@@ -42,9 +50,29 @@ public class PrimaryController implements Initializable{
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        ivPicture.setOnDragOver(new EventHandler(){
-            if
+        ivPicture.setOnDragOver((DragEvent event) -> {
+            if (event.getDragboard().hasFiles()){
+                event.acceptTransferModes(TransferMode.ANY);
+            }
+            event.consume();
         });
+        
+        ivPicture.setOnDragDropped(new EventHandler<DragEvent>(){
+            @Override
+            public void handle(DragEvent event) {
+                List<File> files = event.getDragboard().getFiles();
+                System.out.println("Got " + files.size() + " files");
+                try {
+                    ivPicture.setImage(new Image(new FileInputStream(files.get(0))));
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                event.consume();
+            }
+            
+        });
+        
+     
     }
     
 }
